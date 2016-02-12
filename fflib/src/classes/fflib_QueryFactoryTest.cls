@@ -67,6 +67,10 @@ private class fflib_QueryFactoryTest {
 		qf.selectField('NAMe').selectFields( new Set<String>{'naMe', 'email'});
 		String query = qf.toSOQL();
 		System.assertEquals(1, query.countMatches('Name'), 'Expected one name field in query: '+query );
+		// Try again with sortSelectFields set to false. No de-duplication will be performed, so we should have two Name fields.
+		qf.setSortSelectFields(false);
+		query = qf.toSOQL();
+		System.assertEquals(2, query.countMatches('Name'), 'Expected two name fields in query: '+query );
 	}
 
 	@isTest
@@ -78,7 +82,8 @@ private class fflib_QueryFactoryTest {
 		System.assertNotEquals(qf1,qf2);
 		qf2.selectField('NAmE');
 		System.assertEquals(qf1,qf2);
-		qf1.selectField('name').selectFields( new Set<String>{ 'NAME', 'name' }).selectFields( new Set<Schema.SObjectField>{ Contact.Name, Contact.Name} );
+		qf1.selectFields( new Set<String>{ 'NAME' });
+		qf2.selectFields( new Set<Schema.SObjectField>{ Contact.Name} );
 		System.assertEquals(qf1,qf2);
 	}
 

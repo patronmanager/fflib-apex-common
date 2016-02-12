@@ -61,7 +61,7 @@ public class fflib_QueryFactory { //No explicit sharing declaration - inherit fr
 	**/
 	public Schema.SObjectType table {get; private set;}
 	@testVisible
-	private Set<QueryField> fields; 
+	private List<QueryField> fields; 
 	private String conditionExpression;
 	private Integer limitCount;
 	private Integer offset;
@@ -138,7 +138,7 @@ public class fflib_QueryFactory { //No explicit sharing declaration - inherit fr
 	**/
 	public fflib_QueryFactory(Schema.SObjectType table){
 		this.table = table;
-		fields = new Set<QueryField>();
+		fields = new List<QueryField>();
 		order = new List<Ordering>();
 		enforceFLS = false;
 	}
@@ -215,7 +215,7 @@ public class fflib_QueryFactory { //No explicit sharing declaration - inherit fr
 	**/
 	public fflib_QueryFactory selectFields(Set<String> fieldNames){
 		List<String> fieldList = new List<String>();
-		Set<QueryField> toAdd = new Set<QueryField>();
+		List<QueryField> toAdd = new List<QueryField>();
 		for(String fieldName:fieldNames){
 			toAdd.add( getFieldToken(fieldName) );
 		}	
@@ -227,7 +227,7 @@ public class fflib_QueryFactory { //No explicit sharing declaration - inherit fr
 	 * @param fieldNames the List of field API names to select.
 	**/
 	public fflib_QueryFactory selectFields(List<String> fieldNames){
-		Set<QueryField> toAdd = new Set<QueryField>();
+		List<QueryField> toAdd = new List<QueryField>();
 		for(String fieldName:fieldNames)
 			toAdd.add( getFieldToken(fieldName) );
 		fields.addAll(toAdd);
@@ -326,12 +326,20 @@ public class fflib_QueryFactory { //No explicit sharing declaration - inherit fr
 	}
 
 	/**
+	 * @deprecated  Replaced by {@link #getSelectedFieldsAsList()}
 	 * @returns the selected fields
 	 **/
 	public Set<QueryField> getSelectedFields() { 
+		return new Set<QueryField>(this.fields);
+	}
+	
+	/**
+	 * @returns the selected fields as a List<QueryField>
+	 **/
+	public List<QueryField> getSelectedFieldsAsList() {
 		return this.fields;
 	}
-
+	
 	/**
 	 * Add a subquery query to this query.  If a subquery for this relationship already exists, it will be returned.
 	 * If not, a new one will be created and returned.
@@ -557,8 +565,13 @@ public class fflib_QueryFactory { //No explicit sharing declaration - inherit fr
 		}else if(sortSelectFields){
 			List<QueryField> fieldsToQuery = new List<QueryField>(fields);
 			fieldsToQuery.sort(); //delegates to QueryFilter's comparable implementation
+			// Now that the QueryField list is sorted, we can de-dupe
+			QueryField previousQf = null;
 			for(QueryField field:fieldsToQuery){
-				result += field + ', ';
+				if (!field.equals(previousQf)) {
+					result += field + ', ';
+				}
+				previousQf = field;
 			}
 		}else{
 			for (QueryField field : fields)
