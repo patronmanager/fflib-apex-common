@@ -214,12 +214,9 @@ public class fflib_QueryFactory { //No explicit sharing declaration - inherit fr
 	 * @param fieldNames the Set of field API names to select.
 	**/
 	public fflib_QueryFactory selectFields(Set<String> fieldNames){
-		List<String> fieldList = new List<String>();
-		List<QueryField> toAdd = new List<QueryField>();
 		for(String fieldName:fieldNames){
-			toAdd.add( getFieldToken(fieldName) );
-		}	
-		fields.addAll(toAdd);
+			this.fields.add( getFieldToken(fieldName) );
+		}
 		return this;
 	}
 	/**
@@ -227,10 +224,8 @@ public class fflib_QueryFactory { //No explicit sharing declaration - inherit fr
 	 * @param fieldNames the List of field API names to select.
 	**/
 	public fflib_QueryFactory selectFields(List<String> fieldNames){
-		List<QueryField> toAdd = new List<QueryField>();
 		for(String fieldName:fieldNames)
-			toAdd.add( getFieldToken(fieldName) );
-		fields.addAll(toAdd);
+			this.fields.add( getFieldToken(fieldName) );
 		return this;
 	}
 	/**
